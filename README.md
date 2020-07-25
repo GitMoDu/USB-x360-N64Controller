@@ -1,5 +1,6 @@
 # USB-x360-N64Controller
 N64 to x360 controller conversion using Maple Mini (STM32F1).
+
 xBox360 HID is provided with core.
 
 # Dependencies
