@@ -1,21 +1,20 @@
 
 //https://github.com/arpruss/USBComposite_stm32f1
-#include <USBComposite.h>
+
 
 #define _TASK_OO_CALLBACKS
-#define _TASK_SLEEP_ON_IDLE_RUN
 #include <TaskScheduler.h>
 
-#include "N64Reader.h"
-#include "RumbleDriverSTM32F1.h"
+#include "N64ToX360ControllerTask.h"
+#include <USBComposite.h>
 
 // Device info.
-const uint16_t VendorId = 0x057E; // Nintendo Co. Ltd.
-const uint16_t ProductId = 64;
+const uint16_t VendorId = 0x057E;	// Nintendo Co. Ltd.
+const uint16_t ProductId = 64;		// Nintendo 64.
 
-const char ManufacturerName[] = "Amperum";
+const char ManufacturerName[] = "Nintendo";
 const char DeviceName[] = "Nintendo 64 Controller";
-const char DeviceSerial[] = "13370133701337000001";
+const char DeviceSerial[] = "00000000000000000001";
 //
 
 // Process scheduler.
@@ -27,15 +26,43 @@ USBXBox360 XBox360;
 //
 
 // Rumble driver.
-RumbleDriver Rumble(&SchedulerBase);
+static const uint8_t RumbleDriverPin = LED_BUILTIN;
 //
 
-// N64 controller reader.
-const uint8_t ReaderPin = PA5;
-N64Reader Reader(&SchedulerBase, ReaderPin);
+// LED driver.
+static const uint8_t LEDPin = LED_BUILTIN;
 //
 
-void setup() {
+// N64 controller reader and calibrations.
+
+class N64ControllerCalibration
+{
+public:
+	// Calibration is different for each controller.
+
+	//Joystick.
+	static const int8_t		JoyXMin = -80;
+	static const int8_t		JoyXMax = 80;
+	static const int8_t		JoyXOffset = 0;
+
+	static const uint8_t	JoyYMin = -80;
+	static const uint8_t	JoyYMax = 80;
+	static const int8_t		JoyYOffset = 0;
+
+	static const uint8_t	JoyDeadZoneRadius = 1;
+};
+const uint32_t CONTROLLER_PIN = PA0;
+
+// 2 updates per frame (assuming 60 FPS) should present the most up to date values without saturating the USB HID interface.
+const uint32_t ControllerUpdatePeriodMillis = 7; 
+
+N64ToX360ControllerTask<N64ControllerCalibration, CONTROLLER_PIN, ControllerUpdatePeriodMillis> Controller(&SchedulerBase, &XBox360);
+//
+
+void setup()
+{
+	// Disable Serial USB. Not really needed, but just to make sure.
+	Serial.end();
 
 	// Set up device info to usb composite.
 	USBComposite.setManufacturerString(ManufacturerName);
@@ -43,35 +70,41 @@ void setup() {
 	USBComposite.setSerialString(DeviceSerial);
 	USBComposite.setVendorId(VendorId);
 	USBComposite.setProductId(ProductId);
-	
-	// Set API callbacks to handlers.
-	XBox360.setRumbleCallback(RumbleCallback);
-	XBox360.setLEDCallback(LEDCallback);
 
 	// Setup Rumble.
-	Rumble.Setup();
+	pinMode(RumbleDriverPin, WiringPinMode::PWM);
 
-	// Set up Lights.
+	// Set Rumble to off at setup.
+	RumbleOff();
 
-	// Set up the controller reader.
-	Reader.Setup(&XBox360);
+	// Set up controller with rumble off callback.
+	Controller.Setup(RumbleOff);
 
 	// Start the device.
 	XBox360.begin();
 	while (!USBComposite);
+
+	// Set API callbacks to rumble handler.
+	XBox360.setRumbleCallback(RumbleCallback);
+
+	// Start the controller.
+	Controller.StartController();
 }
 
-void RumbleCallback(uint8_t left, uint8_t right)
+void RumbleCallback(const uint8_t left, const uint8_t right)
 {
-	Rumble.UpdateInput(left, right);
+	// N64 only has 1 rumble so we mix both channels.
+	uint16_t stereoMix = left + right;
+
+	analogWrite(RumbleDriverPin, (uint8_t)constrain(stereoMix, 0, UINT8_MAX));
 }
 
-void LEDCallback(uint8_t pattern)
+void RumbleOff()
 {
-
+	analogWrite(RumbleDriverPin, 0);
 }
 
-void loop() 
+void loop()
 {
 	SchedulerBase.execute();
 }
