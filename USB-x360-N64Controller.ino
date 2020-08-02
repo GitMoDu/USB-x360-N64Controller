@@ -54,7 +54,7 @@ public:
 const uint32_t CONTROLLER_PIN = PA0;
 
 // 2 updates per frame (assuming 60 FPS) should present the most up to date values without saturating the USB HID interface.
-const uint32_t ControllerUpdatePeriodMillis = 7; 
+const uint32_t ControllerUpdatePeriodMillis = 8; 
 
 N64ToX360ControllerTask<N64ControllerCalibration, CONTROLLER_PIN, ControllerUpdatePeriodMillis> Controller(&SchedulerBase, &XBox360);
 //
