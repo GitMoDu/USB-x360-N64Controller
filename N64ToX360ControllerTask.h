@@ -43,6 +43,8 @@ public:
 	{
 		DisableRumbleCallback = disableRumbleCallback;
 
+		X360->setManualReportMode(true);
+
 		return DisableRumbleCallback != nullptr;
 	}
 
@@ -91,28 +93,31 @@ private:
 		Buttons += (BaseClass::GetButton0() & 1) << XBOX_A - 1;
 		Buttons += (BaseClass::GetButton1() & 1) << XBOX_X - 1;
 
-		// Update the buttons.
-		X360->buttons(Buttons);
-
 		// Map Joystick.
 		uint16_t xScaled = map((int32_t)BaseClass::GetJoy1X(), 0, UINT16_MAX, OutputRange::XMin, OutputRange::XMax);
-		uint16_t yScaled = map((int32_t)BaseClass::GetJoy1Y(), 0, UINT16_MAX, OutputRange::YMin, OutputRange::YMax);
-		X360->position(xScaled, yScaled);
+		uint16_t yScaled = map((int32_t)BaseClass::GetJoy1Y(), 0, UINT16_MAX, OutputRange::YMin, OutputRange::YMax);		
 
 		// Mapping C-Buttons as a Right Joystick.
-		xScaled = map((int32_t)BaseClass::GetJoy2X(), 0, UINT16_MAX, OutputRange::XMin, OutputRange::XMax);
-		yScaled = map((int32_t)BaseClass::GetJoy2Y(), 0, UINT16_MAX, OutputRange::YMin, OutputRange::YMax);
-		X360->positionRight(xScaled, yScaled);
+		uint16_t CxScaled = map((int32_t)BaseClass::GetJoy2X(), 0, UINT16_MAX, OutputRange::XMin, OutputRange::XMax);
+		uint16_t CyScaled = map((int32_t)BaseClass::GetJoy2Y(), 0, UINT16_MAX, OutputRange::YMin, OutputRange::YMax);
 
 		// Mapping Z to L Slider.
+		uint16_t ZSlider;
 		if (BaseClass::GetButton4())
 		{
-			X360->sliderLeft(OutputRange::TriggerMax);
+			ZSlider = OutputRange::TriggerMax;
 		}
 		else
 		{
-			X360->sliderLeft(OutputRange::TriggerMin);
+			ZSlider = OutputRange::TriggerMin;
 		}
+
+		X360->sliderLeft(ZSlider);
+		X360->buttons(Buttons);
+		X360->position(xScaled, yScaled);
+		X360->positionRight(CxScaled, CyScaled);
+		X360->send();
+
 	}
 };
 #endif
