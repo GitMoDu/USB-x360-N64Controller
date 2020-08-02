@@ -1,5 +1,13 @@
-
-//https://github.com/arpruss/USBComposite_stm32f1
+// Dependencies:
+// Task Scheduler - https://github.com/arkhipenko/TaskScheduler
+//
+// IInputController Device - https ://github.com/GitMoDu/IInputController
+//
+// Nintendo Controler Reader - https ://github.com/GitMoDu/NintendoControllerReaderSTM32
+//
+// USB HID Composite - https ://github.com/arpruss/USBComposite_stm32f1
+//
+// Arduino STM32 Core - https ://github.com/rogerclarkmelbourne/Arduino_STM32
 
 
 #define _TASK_OO_CALLBACKS
