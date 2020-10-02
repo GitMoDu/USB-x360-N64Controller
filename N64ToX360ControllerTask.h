@@ -5,6 +5,8 @@
 
 #include <NintendoInputControllersInclude.h>
 #include <USBComposite.h>
+#include "PWMRumbleDriver.h"
+
 
 template<typename Calibration,
 	const uint8_t Pin,
@@ -30,7 +32,7 @@ private:
 	// Base class is a template, this makes calling base methods much cleaner.
 	using BaseClass = N64ControllerTask<Calibration, Pin, UpdatePeriodMillis>;
 
-	void(*DisableRumbleCallback)() = nullptr;
+	IRumbleStop* RumbleDriver = nullptr;
 
 public:
 	N64ToX360ControllerTask(Scheduler* scheduler, USBXBox360* x360) :
@@ -39,13 +41,13 @@ public:
 		X360 = x360;
 	}
 
-	bool Setup(void (*disableRumbleCallback)())
+	bool Setup(IRumbleStop* driver)
 	{
-		DisableRumbleCallback = disableRumbleCallback;
+		RumbleDriver = driver;
 
 		X360->setManualReportMode(true);
 
-		return DisableRumbleCallback != nullptr;
+		return RumbleDriver != nullptr;
 	}
 
 protected:
@@ -67,7 +69,7 @@ protected:
 			X360->sliderRight(OutputRange::TriggerMin);
 
 			// Stop rumble.
-			DisableRumbleCallback();
+			RumbleDriver->Stop();
 		}
 	}
 
@@ -98,7 +100,7 @@ private:
 
 		// Map Joystick.
 		uint16_t xScaled = map((int32_t)BaseClass::GetJoy1X(), 0, UINT16_MAX, OutputRange::XMin, OutputRange::XMax);
-		uint16_t yScaled = map((int32_t)BaseClass::GetJoy1Y(), 0, UINT16_MAX, OutputRange::YMin, OutputRange::YMax);		
+		uint16_t yScaled = map((int32_t)BaseClass::GetJoy1Y(), 0, UINT16_MAX, OutputRange::YMin, OutputRange::YMax);
 
 		// Mapping C-Buttons as a Right Joystick.
 		uint16_t CxScaled = map((int32_t)BaseClass::GetJoy2X(), 0, UINT16_MAX, OutputRange::XMin, OutputRange::XMax);

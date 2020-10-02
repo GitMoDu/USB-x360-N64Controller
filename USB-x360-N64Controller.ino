@@ -10,11 +10,12 @@
 // Arduino STM32 Core - https ://github.com/rogerclarkmelbourne/Arduino_STM32
 
 
+
 #define _TASK_OO_CALLBACKS
 #define _TASK_SLEEP_ON_IDLE_RUN
-
 #include <TaskScheduler.h>
 
+#include "PWMRumbleDriver.h"
 #include "N64ToX360ControllerTask.h"
 #include <USBComposite.h>
 
@@ -37,6 +38,7 @@ USBXBox360 XBox360;
 
 // Rumble driver.
 static const uint8_t RumbleDriverPin = PA0;
+PWMRumbleDriver<RumbleDriverPin> RumbleDriver;
 //
 
 // LED driver.
@@ -63,11 +65,10 @@ public:
 };
 const uint32_t CONTROLLER_PIN = PA4;
 
-// Motor is rated for ~3.0V but is supplied with 5.0V.
-const uint8_t MaxPWM = map(3300, 0, 5000, 0, UINT8_MAX);
+
 
 // 2 updates per frame (assuming 60 FPS) should present the most up to date values without saturating the USB HID interface.
-const uint32_t ControllerUpdatePeriodMillis = 8; 
+const uint32_t ControllerUpdatePeriodMillis = 8;
 
 N64ToX360ControllerTask<N64ControllerCalibration, CONTROLLER_PIN, ControllerUpdatePeriodMillis> Controller(&SchedulerBase, &XBox360);
 //
@@ -85,13 +86,10 @@ void setup()
 	USBComposite.setProductId(ProductId);
 
 	// Setup Rumble.
-	pinMode(RumbleDriverPin, WiringPinMode::PWM);
-
-	// Set Rumble to off at setup.
-	RumbleOff();
+	RumbleDriver.Setup();
 
 	// Set up controller with rumble off callback.
-	Controller.Setup(RumbleOff);
+	Controller.Setup(&RumbleDriver);
 
 	// Start the device.
 	XBox360.begin();
@@ -106,16 +104,7 @@ void setup()
 
 void RumbleCallback(const uint8_t left, const uint8_t right)
 {
-	// N64 only has 1 rumble so we mix both channels.
-	uint8_t raw = (uint8_t)constrain(left + right, 0, UINT8_MAX);
-
-	// Scale power by lowered max PWM.
-	analogWrite(RumbleDriverPin, map(raw, 0, UINT8_MAX, 0, MaxPWM));
-}
-
-void RumbleOff()
-{
-	analogWrite(RumbleDriverPin, 0);
+	RumbleDriver.Update(left, right);
 }
 
 void loop()
