@@ -6,6 +6,7 @@
 #include <NintendoInputControllersInclude.h>
 #include <USBComposite.h>
 #include "PWMRumbleDriver.h"
+#include <USBComposite.h>
 
 
 template<typename Calibration,
@@ -74,6 +75,12 @@ protected:
 	{
 		// Update mapped x360 controls on controller read.
 		MapN64ToX360();
+
+		// Safeguard for USB disconnected but power still on.
+		if (!USBComposite.isReady())
+		{
+			RumbleDriver.Stop();
+		}
 	}
 
 	virtual void OnStateChanged(const bool connected)
