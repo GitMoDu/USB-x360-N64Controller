@@ -49,12 +49,12 @@ public:
 	// Calibration is different for each controller.
 
 	//Joystick.
-	static const int8_t		JoyXMin = -80;
-	static const int8_t		JoyXMax = 80;
+	static const int8_t		JoyXMin = -64;
+	static const int8_t		JoyXMax = 64;
 	static const int8_t		JoyXOffset = 0;
 
-	static const uint8_t	JoyYMin = -80;
-	static const uint8_t	JoyYMax = 80;
+	static const uint8_t	JoyYMin = -70;
+	static const uint8_t	JoyYMax = 70;
 	static const int8_t		JoyYOffset = 0;
 
 	static const uint8_t	JoyDeadZoneRadius = 1;
