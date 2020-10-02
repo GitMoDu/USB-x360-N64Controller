@@ -32,22 +32,41 @@ private:
 	// Base class is a template, this makes calling base methods much cleaner.
 	using BaseClass = N64ControllerTask<Calibration, Pin, UpdatePeriodMillis>;
 
-	IRumbleStop* RumbleDriver = nullptr;
+	// Rumble driver.
+	PWMRumbleDriver RumbleDriver;
+	//
 
 public:
-	N64ToX360ControllerTask(Scheduler* scheduler, USBXBox360* x360) :
+	N64ToX360ControllerTask(Scheduler* scheduler) :
 		N64ControllerTask<Calibration, Pin, UpdatePeriodMillis>(scheduler)
 	{
-		X360 = x360;
 	}
 
-	bool Setup(IRumbleStop* driver)
+	bool Setup(USBXBox360* x360)
 	{
-		RumbleDriver = driver;
+		X360 = x360;
 
-		X360->setManualReportMode(true);
+		if (X360 != nullptr)
+		{
+			X360->setManualReportMode(true);
 
-		return RumbleDriver != nullptr;
+			// Setup Rumble.
+			RumbleDriver.Setup();
+
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	void UpdateRumble(const uint8_t left, const uint8_t right)
+	{
+		// N64 only has 1 rumble so we mix both channels.
+		uint8_t raw = (uint8_t)constrain(left + right, 0, UINT8_MAX);
+
+		RumbleDriver.UpdateRumble(raw);
 	}
 
 protected:
@@ -69,7 +88,7 @@ protected:
 			X360->sliderRight(OutputRange::TriggerMin);
 
 			// Stop rumble.
-			RumbleDriver->Stop();
+			RumbleDriver.Stop();
 		}
 	}
 

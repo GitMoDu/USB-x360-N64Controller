@@ -15,7 +15,6 @@
 #define _TASK_SLEEP_ON_IDLE_RUN
 #include <TaskScheduler.h>
 
-#include "PWMRumbleDriver.h"
 #include "N64ToX360ControllerTask.h"
 #include <USBComposite.h>
 
@@ -34,11 +33,6 @@ Scheduler SchedulerBase;
 
 // XBox controller API.
 USBXBox360 XBox360;
-//
-
-// Rumble driver.
-static const uint8_t RumbleDriverPin = PA0;
-PWMRumbleDriver<RumbleDriverPin> RumbleDriver;
 //
 
 // LED driver.
@@ -65,12 +59,10 @@ public:
 };
 const uint32_t CONTROLLER_PIN = PA4;
 
-
-
-// 2 updates per frame (assuming 60 FPS) should present the most up to date values without saturating the USB HID interface.
+// ~2 updates per frame (assuming 60 FPS) should present the most up to date values without saturating the USB HID interface.
 const uint32_t ControllerUpdatePeriodMillis = 8;
 
-N64ToX360ControllerTask<N64ControllerCalibration, CONTROLLER_PIN, ControllerUpdatePeriodMillis> Controller(&SchedulerBase, &XBox360);
+N64ToX360ControllerTask<N64ControllerCalibration, CONTROLLER_PIN, ControllerUpdatePeriodMillis> Controller(&SchedulerBase);
 //
 
 void setup()
@@ -85,11 +77,8 @@ void setup()
 	USBComposite.setVendorId(VendorId);
 	USBComposite.setProductId(ProductId);
 
-	// Setup Rumble.
-	RumbleDriver.Setup();
-
 	// Set up controller with rumble off callback.
-	Controller.Setup(&RumbleDriver);
+	Controller.Setup(&XBox360);
 
 	// Start the device.
 	XBox360.begin();
@@ -104,7 +93,7 @@ void setup()
 
 void RumbleCallback(const uint8_t left, const uint8_t right)
 {
-	RumbleDriver.Update(left, right);
+	Controller.UpdateRumble(left, right);
 }
 
 void loop()
