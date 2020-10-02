@@ -61,6 +61,9 @@ public:
 };
 const uint32_t CONTROLLER_PIN = PA0;
 
+// Motor is rated for ~3.0V but is supplied with 5.0V.
+const uint8_t MaxPWM = map(3000, 0, 5000, 0, UINT8_MAX);
+
 // 2 updates per frame (assuming 60 FPS) should present the most up to date values without saturating the USB HID interface.
 const uint32_t ControllerUpdatePeriodMillis = 8; 
 
@@ -102,9 +105,10 @@ void setup()
 void RumbleCallback(const uint8_t left, const uint8_t right)
 {
 	// N64 only has 1 rumble so we mix both channels.
-	uint16_t stereoMix = left + right;
+	uint8_t raw = (uint8_t)constrain(left + right, 0, UINT8_MAX);
 
-	analogWrite(RumbleDriverPin, (uint8_t)constrain(stereoMix, 0, UINT8_MAX));
+	// Scale power by lowered max PWM.
+	analogWrite(RumbleDriverPin, map(raw, 0, UINT8_MAX, 0, MaxPWM));
 }
 
 void RumbleOff()
