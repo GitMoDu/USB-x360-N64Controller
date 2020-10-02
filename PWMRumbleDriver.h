@@ -3,48 +3,58 @@
 #ifndef _PWMRUMBLEDRIVER_h
 #define _PWMRUMBLEDRIVER_h
 
-#include <stdint.h>
+#include <HardwareTimer.h>
+#include "io.h"
 
-class IRumbleStop {
-public:
-	virtual void Stop() {}
-};
-
-template <const uint8_t RumbleDriverPin>
-class PWMRumbleDriver : public virtual IRumbleStop {
+class PWMRumbleDriver {
 
 private:
+	static const uint8_t Index = 2;
+	static const timer_channel Channel = TIMER_CH1;
+	static const uint8_t RumbleDriverPin = PA0;
+
+	static const uint16_t Overflow = UINT16_MAX / 10;
+
 	// Motor is rated for ~3.0V but is supplied with 5.0V.
-	const uint8_t MaxPWM = map(3300, 0, 5000, 0, UINT8_MAX);
+	// Mosfet is loses transfer efficiency over ~500 KHz.
+	const uint16_t MaxPWM = map(4300, 0, 5000, 0, Overflow);
+
+	HardwareTimer Timer;
 
 public:
 	PWMRumbleDriver()
+		: Timer(Index)
 	{
 	}
 
 	void Stop()
 	{
-		analogWrite(RumbleDriverPin, 0);
+		Timer.setCompare(Channel, 0);
 	}
 
-	void Update(const uint8_t left, const uint8_t right)
+	void UpdateRumble(const uint8_t value)
 	{
-		// N64 only has 1 rumble so we mix both channels.
-		uint8_t raw = (uint8_t)constrain(left + right, 0, UINT8_MAX);
-
 		// Scale power by lowered max PWM.
-		analogWrite(RumbleDriverPin, map(raw, 0, UINT8_MAX, 0, MaxPWM));
+		// map(value, 0, UINT8_MAX, 0, MaxPWM);
+		uint16_t output = (uint32_t)(value * MaxPWM) / UINT8_MAX;
+
+		Timer.setCompare(Channel, output);
 	}
 
 	void Setup()
 	{
-		pinMode(RumbleDriverPin, WiringPinMode::PWM);
+		pinMode(RumbleDriverPin, PWM);
 
-		// Set Rumble to off at setup.
-		Stop();
+		Timer.pause();
+		Timer.setPrescaleFactor(1);
+		Timer.setCount(0);
+		Timer.setOverflow(Overflow);
+
+		Timer.setCompare(Channel, 0);
+
+		Timer.refresh();
+		Timer.resume();
 	}
 };
-
-
 #endif
 
