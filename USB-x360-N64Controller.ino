@@ -11,6 +11,8 @@
 
 
 #define _TASK_OO_CALLBACKS
+#define _TASK_SLEEP_ON_IDLE_RUN
+
 #include <TaskScheduler.h>
 
 #include "N64ToX360ControllerTask.h"
