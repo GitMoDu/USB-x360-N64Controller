@@ -89,8 +89,11 @@ private:
 		Buttons += (BaseClass::GetButton5() & 1) << XBOX_LSHOULDER - 1;
 		Buttons += (BaseClass::GetButton6() & 1) << XBOX_RSHOULDER - 1;
 
-		// Map A and B to A and X.
+		// Map A to A.
 		Buttons += (BaseClass::GetButton0() & 1) << XBOX_A - 1;
+
+		// Map B to B and X, for compatibility with general UIs and N64 emulators.
+		Buttons += (BaseClass::GetButton1() & 1) << XBOX_B - 1;
 		Buttons += (BaseClass::GetButton1() & 1) << XBOX_X - 1;
 
 		// Map Joystick.
