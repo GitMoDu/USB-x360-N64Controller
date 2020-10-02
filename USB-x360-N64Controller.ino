@@ -34,7 +34,7 @@ USBXBox360 XBox360;
 //
 
 // Rumble driver.
-static const uint8_t RumbleDriverPin = LED_BUILTIN;
+static const uint8_t RumbleDriverPin = PA0;
 //
 
 // LED driver.
@@ -59,7 +59,7 @@ public:
 
 	static const uint8_t	JoyDeadZoneRadius = 1;
 };
-const uint32_t CONTROLLER_PIN = PA0;
+const uint32_t CONTROLLER_PIN = PA4;
 
 // Motor is rated for ~3.0V but is supplied with 5.0V.
 const uint8_t MaxPWM = map(3000, 0, 5000, 0, UINT8_MAX);
