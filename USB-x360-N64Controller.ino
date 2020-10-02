@@ -64,7 +64,7 @@ public:
 const uint32_t CONTROLLER_PIN = PA4;
 
 // Motor is rated for ~3.0V but is supplied with 5.0V.
-const uint8_t MaxPWM = map(3000, 0, 5000, 0, UINT8_MAX);
+const uint8_t MaxPWM = map(3300, 0, 5000, 0, UINT8_MAX);
 
 // 2 updates per frame (assuming 60 FPS) should present the most up to date values without saturating the USB HID interface.
 const uint32_t ControllerUpdatePeriodMillis = 8; 
