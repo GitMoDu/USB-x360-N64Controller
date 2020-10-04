@@ -77,10 +77,10 @@ void setup()
 	USBComposite.setVendorId(VendorId);
 	USBComposite.setProductId(ProductId);
 
-	// Set up controller with rumble off callback.
+	// Set up controller x360.
 	Controller.Setup(&XBox360);
 
-	// Start the device.
+	// Start USB the device.
 	XBox360.begin();
 	while (!USBComposite);
 
