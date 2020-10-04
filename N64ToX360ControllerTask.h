@@ -19,7 +19,7 @@ private:
 
 	struct OutputRange
 	{
-		static const uint16_t CutOff = 200;
+		static const uint16_t CutOff = 00;
 		static const int16_t XMin = INT16_MIN + CutOff;
 		static const int16_t XMax = INT16_MAX - CutOff;
 
