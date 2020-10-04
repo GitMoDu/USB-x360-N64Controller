@@ -2,6 +2,30 @@
 N64 to x360 controller conversion using Maple Mini (STM32F1).
 
 
+![](https://raw.githubusercontent.com/GitMoDu/USB-x360-N64Controller/master/media/front.jpg)
+
+
+![](https://raw.githubusercontent.com/GitMoDu/USB-x360-N64Controller/master/media/back.jpg)
+
+
+# Features
+Controller presents as an XBox controller through USB.
+Native force feedback supported.
+2 meter braided USB cable.
+
+
+# Technical Specifications
+USB 2.0 HID XBox device.
+Update period: 8 milliseconds.
+Power draw: 
+	Min(0.250 W) (No Rumble)
+	Max(0.600 W) (Rumble full power)
+
+
+# Controller Mapping
+The mapping used is compatible with RetroArch emulator, so the defaults should work out of the box the menus and emulator. The B button is assigned to both the B and X button.
+Joystick range is calibrated for device.
+
 # Dependencies
 Task Scheduler - https://github.com/arkhipenko/TaskScheduler
 
@@ -12,12 +36,3 @@ Nintendo Controler Reader - https://github.com/GitMoDu/NintendoControllerReaderS
 USB HID Composite- https://github.com/arpruss/USBComposite_stm32f1
 
 Arduino STM32 Core - https://github.com/rogerclarkmelbourne/Arduino_STM32
-
-
-
-# Controller Mapping
-The mapping used is compatible with RetroArch emulator, so the defaults should work out of the box the menus and emulator.
-
-# Usage
-Connect N64 controller to Pin and plug in device to USB.
-
