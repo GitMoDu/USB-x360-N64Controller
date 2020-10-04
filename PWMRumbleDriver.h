@@ -13,6 +13,7 @@ private:
 	static const timer_channel Channel = TIMER_CH1;
 	static const uint8_t RumbleDriverPin = PA0;
 
+	// Leaves >12 bits of range.
 	static const uint16_t Overflow = UINT16_MAX / 10;
 
 	// Motor is rated for ~3.0V but is supplied with 5.0V.
