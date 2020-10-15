@@ -76,11 +76,13 @@ public:
 protected:
 	virtual void OnDataUpdated()
 	{
-		// Update mapped x360 controls on controller read.
-		MapN64ToX360();
-
 		// Safeguard for USB disconnected but power still on.
-		if (!USBComposite.isReady())
+		if (USBComposite.isReady())
+		{
+			// Update mapped x360 controls on controller read and USB ok.
+			MapN64ToX360();
+		}
+		else
 		{
 			RumbleDriver.Stop();
 		}
