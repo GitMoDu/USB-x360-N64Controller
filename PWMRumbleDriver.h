@@ -6,7 +6,8 @@
 #include <HardwareTimer.h>
 #include "io.h"
 
-class PWMRumbleDriver {
+class PWMRumbleDriver
+{
 
 private:
 	static const uint8_t Index = 2;
@@ -26,6 +27,17 @@ public:
 	PWMRumbleDriver()
 		: Timer(Index)
 	{
+		pinMode(RumbleDriverPin, PWM);
+
+		Timer.pause();
+		Timer.setPrescaleFactor(1);
+		Timer.setCount(0);
+		Timer.setOverflow(Overflow);
+
+		Timer.setCompare(Channel, 0);
+
+		Timer.refresh();
+		Timer.resume();
 	}
 
 	void Stop()
@@ -40,21 +52,6 @@ public:
 		uint16_t output = (uint32_t)(value * MaxPWM) / UINT8_MAX;
 
 		Timer.setCompare(Channel, output);
-	}
-
-	void Setup()
-	{
-		pinMode(RumbleDriverPin, PWM);
-
-		Timer.pause();
-		Timer.setPrescaleFactor(1);
-		Timer.setCount(0);
-		Timer.setOverflow(Overflow);
-
-		Timer.setCompare(Channel, 0);
-
-		Timer.refresh();
-		Timer.resume();
 	}
 };
 #endif

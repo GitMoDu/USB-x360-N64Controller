@@ -62,7 +62,7 @@ const uint32_t CONTROLLER_PIN = PA4;
 // ~2 updates per frame (assuming 60 FPS) should present the most up to date values without saturating the USB HID interface.
 const uint32_t ControllerUpdatePeriodMillis = 8;
 
-N64ToX360ControllerTask<N64ControllerCalibration, CONTROLLER_PIN, ControllerUpdatePeriodMillis> Controller(&SchedulerBase);
+N64ToX360ControllerTask<N64ControllerCalibration, CONTROLLER_PIN, ControllerUpdatePeriodMillis> Controller(&SchedulerBase, &XBox360);
 //
 
 void setup()
@@ -77,9 +77,6 @@ void setup()
 	USBComposite.setVendorId(VendorId);
 	USBComposite.setProductId(ProductId);
 
-	// Set up controller x360.
-	Controller.Setup(&XBox360);
-
 	// Start USB the device.
 	XBox360.begin();
 	while (!USBComposite);
@@ -88,7 +85,7 @@ void setup()
 	XBox360.setRumbleCallback(RumbleCallback);
 
 	// Start the controller.
-	Controller.StartController();
+	Controller.Start();
 }
 
 void RumbleCallback(const uint8_t left, const uint8_t right)

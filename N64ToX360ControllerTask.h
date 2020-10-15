@@ -12,11 +12,9 @@
 template<typename Calibration,
 	const uint8_t Pin,
 	const uint32_t UpdatePeriodMillis>
-	class N64ToX360ControllerTask : public  N64ControllerTask<Calibration, Pin, UpdatePeriodMillis>
+	class N64ToX360ControllerTask : public virtual IDispatcher
 {
 private:
-	USBXBox360* X360 = nullptr;
-
 	struct OutputRange
 	{
 		static const uint16_t CutOff = 00;
@@ -30,36 +28,41 @@ private:
 		static const int16_t TriggerMax = UINT8_MAX - 1;
 	};
 
-	// Base class is a template, this makes calling base methods much cleaner.
-	using BaseClass = N64ControllerTask<Calibration, Pin, UpdatePeriodMillis>;
-
 	// Rumble driver.
 	PWMRumbleDriver RumbleDriver;
 	//
 
-public:
-	N64ToX360ControllerTask(Scheduler* scheduler) :
-		N64ControllerTask<Calibration, Pin, UpdatePeriodMillis>(scheduler)
-	{
-	}
+	// Controller driver with dispatcher.
+	N64ControllerTask<Calibration, Pin, UpdatePeriodMillis> ControllerDriver;
+	//
 
-	bool Setup(USBXBox360* x360)
+	// XBox 360 Controller instance.
+	USBXBox360* X360 = nullptr;
+
+public:
+	N64ToX360ControllerTask(Scheduler* scheduler, USBXBox360* x360)
+		: ControllerDriver(scheduler)
+		, X360(x360)
 	{
-		X360 = x360;
+		ControllerDriver.SetDispatcher(this);
 
 		if (X360 != nullptr)
 		{
 			X360->setManualReportMode(true);
-
-			// Setup Rumble.
-			RumbleDriver.Setup();
-
-			return true;
 		}
-		else
+	}
+
+	void Start()
+	{
+		if (X360 != nullptr)
 		{
-			return false;
+			ControllerDriver.StartController();
 		}
+	}
+
+	void Stop()
+	{
+		ControllerDriver.StopController();
 	}
 
 	void UpdateRumble(const uint8_t left, const uint8_t right)
@@ -105,36 +108,36 @@ private:
 		uint16_t Buttons = 0;
 
 		// Map D-Pad.
-		Buttons += (BaseClass::GetRight() & 1) << XBOX_DRIGHT - 1;
-		Buttons += (BaseClass::GetLeft() & 1) << XBOX_DLEFT - 1;
-		Buttons += (BaseClass::GetDown() & 1) << XBOX_DDOWN - 1;
-		Buttons += (BaseClass::GetUp() & 1) << XBOX_DUP - 1;
+		Buttons += (ControllerDriver.GetRight() & 1) << XBOX_DRIGHT - 1;
+		Buttons += (ControllerDriver.GetLeft() & 1) << XBOX_DLEFT - 1;
+		Buttons += (ControllerDriver.GetDown() & 1) << XBOX_DDOWN - 1;
+		Buttons += (ControllerDriver.GetUp() & 1) << XBOX_DUP - 1;
 
 		// Map Start.
-		Buttons += (BaseClass::GetButtonHome() & 1) << XBOX_START - 1;
+		Buttons += (ControllerDriver.GetButtonHome() & 1) << XBOX_START - 1;
 
 		// Map L and R to shoulder buttons.
-		Buttons += (BaseClass::GetButton5() & 1) << XBOX_LSHOULDER - 1;
-		Buttons += (BaseClass::GetButton6() & 1) << XBOX_RSHOULDER - 1;
+		Buttons += (ControllerDriver.GetButton5() & 1) << XBOX_LSHOULDER - 1;
+		Buttons += (ControllerDriver.GetButton6() & 1) << XBOX_RSHOULDER - 1;
 
 		// Map A to A.
-		Buttons += (BaseClass::GetButton0() & 1) << XBOX_A - 1;
+		Buttons += (ControllerDriver.GetButton0() & 1) << XBOX_A - 1;
 
 		// Map B to B and X, for compatibility with general UIs and N64 emulators.
-		Buttons += (BaseClass::GetButton1() & 1) << XBOX_B - 1;
-		Buttons += (BaseClass::GetButton1() & 1) << XBOX_X - 1;
+		Buttons += (ControllerDriver.GetButton1() & 1) << XBOX_B - 1;
+		Buttons += (ControllerDriver.GetButton1() & 1) << XBOX_X - 1;
 
 		// Map Joystick.
-		uint16_t xScaled = map((int32_t)BaseClass::GetJoy1X(), 0, UINT16_MAX, OutputRange::XMin, OutputRange::XMax);
-		uint16_t yScaled = map((int32_t)BaseClass::GetJoy1Y(), 0, UINT16_MAX, OutputRange::YMin, OutputRange::YMax);
+		uint16_t xScaled = map((int32_t)ControllerDriver.GetJoy1X(), 0, UINT16_MAX, OutputRange::XMin, OutputRange::XMax);
+		uint16_t yScaled = map((int32_t)ControllerDriver.GetJoy1Y(), 0, UINT16_MAX, OutputRange::YMin, OutputRange::YMax);
 
 		// Mapping C-Buttons as a Right Joystick.
-		uint16_t CxScaled = map((int32_t)BaseClass::GetJoy2X(), 0, UINT16_MAX, OutputRange::XMin, OutputRange::XMax);
-		uint16_t CyScaled = map((int32_t)BaseClass::GetJoy2Y(), 0, UINT16_MAX, OutputRange::YMin, OutputRange::YMax);
+		uint16_t CxScaled = map((int32_t)ControllerDriver.GetJoy2X(), 0, UINT16_MAX, OutputRange::XMin, OutputRange::XMax);
+		uint16_t CyScaled = map((int32_t)ControllerDriver.GetJoy2Y(), 0, UINT16_MAX, OutputRange::YMin, OutputRange::YMax);
 
 		// Mapping Z to L Slider.
 		uint16_t ZSlider;
-		if (BaseClass::GetButton4())
+		if (ControllerDriver.GetButton4())
 		{
 			ZSlider = OutputRange::TriggerMax;
 		}
