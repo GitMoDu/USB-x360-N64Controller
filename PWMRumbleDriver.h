@@ -15,11 +15,12 @@ private:
 	static const uint8_t RumbleDriverPin = PA0;
 
 	// Leaves >12 bits of range.
-	static const uint16_t Overflow = UINT16_MAX / 10;
+	static const uint16_t Overflow = UINT16_MAX / 20;
 
 	// Motor is rated for ~3.0V but is supplied with 5.0V.
 	// Mosfet is loses transfer efficiency over ~500 KHz.
-	const uint16_t MaxPWM = map(4300, 0, 5000, 0, Overflow);
+	// map(Virtual Output, 0, 5000, 0, Overflow);
+	static const uint16_t MaxPWM = (4150 * Overflow) / 5000;
 
 	HardwareTimer Timer;
 
