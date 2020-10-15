@@ -42,6 +42,7 @@ private:
 public:
 	N64ToX360ControllerTask(Scheduler* scheduler, USBXBox360* x360)
 		: ControllerDriver(scheduler)
+		, RumbleDriver()
 		, X360(x360)
 	{
 		ControllerDriver.SetDispatcher(this);
