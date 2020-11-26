@@ -55,7 +55,7 @@ public:
 	static const uint8_t	JoyYMax = 70;
 	static const int8_t		JoyYOffset = 0;
 
-	static const uint8_t	JoyDeadZoneRadius = 1;
+	static const uint8_t	JoyDeadZoneRadius = 0;
 };
 const uint32_t CONTROLLER_PIN = PA4;
 
