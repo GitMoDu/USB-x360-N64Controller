@@ -39,11 +39,17 @@ private:
 	// XBox 360 Controller instance.
 	USBXBox360* X360 = nullptr;
 
+	// LED indicator.
+	static const uint8_t LEDPin = LED_BUILTIN;
+	const uint8_t LedBrightness;
+	//
+
 public:
-	N64ToX360ControllerTask(Scheduler* scheduler, USBXBox360* x360)
+	N64ToX360ControllerTask(Scheduler* scheduler, USBXBox360* x360, const uint8_t ledBrightness = 8)
 		: ControllerDriver(scheduler)
 		, RumbleDriver()
 		, X360(x360)
+		, LedBrightness(ledBrightness)
 	{
 		ControllerDriver.SetDispatcher(this);
 
@@ -51,6 +57,10 @@ public:
 		{
 			X360->setManualReportMode(true);
 		}
+
+		pinMode(LEDPin, PWM);
+		analogWrite(LEDPin, 0);
+
 	}
 
 	void Start()
@@ -69,7 +79,7 @@ public:
 	void UpdateRumble(const uint8_t left, const uint8_t right)
 	{
 		// N64 only has 1 rumble so we mix both channels.
-		uint8_t raw = (uint8_t)constrain(left + right, 0, UINT8_MAX);
+		uint8_t raw = min(left + right, UINT8_MAX);
 
 		RumbleDriver.UpdateRumble(raw);
 	}
@@ -86,12 +96,17 @@ protected:
 		else
 		{
 			RumbleDriver.Stop();
+			analogWrite(LED_BUILTIN, 0);
 		}
 	}
 
 	virtual void OnStateChanged(const bool connected)
 	{
-		if (!connected)
+		if (connected)
+		{
+			analogWrite(LED_BUILTIN, LedBrightness);
+		}
+		else
 		{
 			// Set x360 neutral controls on disconnect.
 			X360->buttons(0);
@@ -102,6 +117,9 @@ protected:
 
 			// Stop rumble.
 			RumbleDriver.Stop();
+
+			// Disable LED indicator.
+			analogWrite(LED_BUILTIN, 0);
 		}
 	}
 
@@ -154,7 +172,6 @@ private:
 		X360->position(xScaled, yScaled);
 		X360->positionRight(CxScaled, CyScaled);
 		X360->send();
-
 	}
 };
 #endif
