@@ -20,7 +20,7 @@ private:
 	// Motor is rated for ~3.0V but is supplied with 5.0V.
 	// Mosfet is loses transfer efficiency over ~500 KHz.
 	// map(Virtual Output, 0, 5000, 0, Overflow);
-	static const uint16_t MaxPWM = (4150 * Overflow) / 5000;
+	static const uint16_t MaxPWM = (4200 * Overflow) / 5000;
 
 	HardwareTimer Timer;
 
