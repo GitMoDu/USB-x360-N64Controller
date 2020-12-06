@@ -17,7 +17,7 @@ template<typename Calibration,
 private:
 	struct OutputRange
 	{
-		static const uint16_t CutOff = 00;
+		static const uint16_t CutOff = 5;
 		static const int16_t XMin = INT16_MIN + CutOff;
 		static const int16_t XMax = INT16_MAX - CutOff;
 
