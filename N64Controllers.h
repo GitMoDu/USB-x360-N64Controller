@@ -36,8 +36,8 @@ struct N64ControllerConfiguration
 
 	static const int8_t		JoyYMin = -80;
 	static const int8_t		JoyYMax = 80;
-	static const int8_t		JoyYOffset = -1;
+	static const int8_t		JoyYOffset = 0;
 
-	static const uint8_t	JoyDeadZoneRadius = 0;
+	static const uint8_t	JoyDeadZoneRadius = 1;
 };
 #endif
