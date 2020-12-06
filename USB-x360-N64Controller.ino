@@ -17,6 +17,7 @@
 
 #include "N64ToX360ControllerTask.h"
 #include <USBComposite.h>
+#include "N64Controllers.h"
 
 // Device info.
 const uint16_t VendorId = 0x057E;	// Nintendo Co. Ltd.
@@ -24,7 +25,6 @@ const uint16_t ProductId = 64;		// Nintendo 64.
 
 const char ManufacturerName[] = "Nintendo";
 const char DeviceName[] = "Nintendo 64 Controller";
-const char DeviceSerial[] = "00000000000000000001";
 //
 
 // Process scheduler.
@@ -35,34 +35,11 @@ Scheduler SchedulerBase;
 USBXBox360 XBox360;
 //
 
-// LED driver.
-static const uint8_t LEDPin = LED_BUILTIN;
-//
+// ~5 updates per frame (assuming 60 FPS) should present the most up to date values without saturating the USB HID interface.
+const uint32_t ControllerUpdatePeriodMillis = 3;
 
-// N64 controller reader and calibrations.
-
-class N64ControllerCalibration
-{
-public:
-	// Calibration is different for each controller.
-
-	//Joystick.
-	static const int8_t		JoyXMin = -62;
-	static const int8_t		JoyXMax = 62;
-	static const int8_t		JoyXOffset = 0;
-
-	static const uint8_t	JoyYMin = -70;
-	static const uint8_t	JoyYMax = 70;
-	static const int8_t		JoyYOffset = 0;
-
-	static const uint8_t	JoyDeadZoneRadius = 0;
-};
-const uint32_t CONTROLLER_PIN = PA4;
-
-// ~2 updates per frame (assuming 60 FPS) should present the most up to date values without saturating the USB HID interface.
-const uint32_t ControllerUpdatePeriodMillis = 7;
-
-N64ToX360ControllerTask<N64ControllerCalibration, CONTROLLER_PIN, ControllerUpdatePeriodMillis> Controller(&SchedulerBase, &XBox360);
+N64ToX360ControllerTask<N64ControllerConfiguration, N64ControllerConfiguration::ControllerPin, ControllerUpdatePeriodMillis>
+	Controller(&SchedulerBase, &XBox360, N64ControllerConfiguration::LedBrightness);
 //
 
 void setup()
@@ -73,7 +50,7 @@ void setup()
 	// Set up device info to usb composite.
 	USBComposite.setManufacturerString(ManufacturerName);
 	USBComposite.setProductString(DeviceName);
-	USBComposite.setSerialString(DeviceSerial);
+	USBComposite.setSerialString(N64ControllerConfiguration().SerialNumber);
 	USBComposite.setVendorId(VendorId);
 	USBComposite.setProductId(ProductId);
 
