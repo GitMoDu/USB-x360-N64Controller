@@ -10,7 +10,6 @@
 
 
 template<typename Calibration,
-	const uint8_t Pin,
 	const uint32_t UpdatePeriodMillis>
 	class N64ToX360ControllerTask : public virtual IDispatcher
 {
@@ -33,7 +32,7 @@ private:
 	//
 
 	// Controller driver with dispatcher.
-	N64ControllerTask<Calibration, Pin, UpdatePeriodMillis> ControllerDriver;
+	N64ControllerTask<Calibration, UpdatePeriodMillis> ControllerDriver;
 	//
 
 	// XBox 360 Controller instance.
@@ -45,8 +44,8 @@ private:
 	//
 
 public:
-	N64ToX360ControllerTask(Scheduler* scheduler, USBXBox360* x360, const uint8_t ledBrightness = 8)
-		: ControllerDriver(scheduler)
+	N64ToX360ControllerTask(Scheduler* scheduler, USBXBox360* x360, HardwareSerial* serial, const uint8_t ledBrightness = 8)
+		: ControllerDriver(scheduler, serial)
 		, RumbleDriver()
 		, X360(x360)
 		, LedBrightness(ledBrightness)

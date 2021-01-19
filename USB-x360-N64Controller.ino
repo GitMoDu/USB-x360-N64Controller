@@ -38,8 +38,8 @@ USBXBox360 XBox360;
 // ~5 updates per frame (assuming 60 FPS) should present the most up to date values without saturating the USB HID interface.
 const uint32_t ControllerUpdatePeriodMillis = 3;
 
-N64ToX360ControllerTask<N64ControllerConfiguration, N64ControllerConfiguration::ControllerPin, ControllerUpdatePeriodMillis>
-	Controller(&SchedulerBase, &XBox360, N64ControllerConfiguration::LedBrightness);
+N64ToX360ControllerTask<N64ControllerConfiguration, ControllerUpdatePeriodMillis>
+Controller(&SchedulerBase, &XBox360, &Serial3, N64ControllerConfiguration::LedBrightness);
 //
 
 void setup()
