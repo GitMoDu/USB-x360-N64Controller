@@ -41,12 +41,11 @@
 //	static const uint8_t	JoyDeadZoneRadius = 1;
 //};
 
-// First JoyBus over Serial version. Same device as before.
+// Serial 2 upgraded with JoyBus over Serial.
 struct N64ControllerConfiguration
 {
 	const char* SerialNumber = "00000000000000000003";
 	static const uint8_t LedBrightness = 8;
-
 
 	static const int8_t		JoyXMin = -80;
 	static const int8_t		JoyXMax = 80;
@@ -56,6 +55,6 @@ struct N64ControllerConfiguration
 	static const int8_t		JoyYMax = 80;
 	static const int8_t		JoyYOffset = 0;
 
-	static const uint8_t	JoyDeadZoneRadius = 1;
+	static const uint8_t	JoyDeadZoneRadius = 0;
 };
 #endif
