@@ -38,6 +38,9 @@ private:
 	// XBox 360 Controller instance.
 	USBXBox360* X360 = nullptr;
 
+	// Local tracking of USB failure.
+	bool CompositeFailed = true;
+
 	// LED indicator.
 	static const uint8_t LEDPin = LED_BUILTIN;
 	const uint8_t LedBrightness;
@@ -59,7 +62,6 @@ public:
 
 		pinMode(LEDPin, PWM);
 		analogWrite(LEDPin, 0);
-
 	}
 
 	void Start()
@@ -91,9 +93,17 @@ protected:
 		{
 			// Update mapped x360 controls on controller read and USB ok.
 			MapN64ToX360();
+
+			// Check if previous USB state was FAIL, show LED if it's back.
+			if (CompositeFailed)
+			{
+				CompositeFailed = false;
+				analogWrite(LED_BUILTIN, LedBrightness);
+			}
 		}
 		else
 		{
+			CompositeFailed = true;
 			RumbleDriver.Stop();
 			analogWrite(LED_BUILTIN, 0);
 		}
@@ -101,7 +111,7 @@ protected:
 
 	virtual void OnStateChanged(const bool connected)
 	{
-		if (connected)
+		if (connected && !CompositeFailed)
 		{
 			analogWrite(LED_BUILTIN, LedBrightness);
 		}
