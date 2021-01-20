@@ -15,7 +15,7 @@ N64 to x360 controller conversion using Maple Mini (STM32F1).
 
 - Calibrated joystick.
 
-- 2.2 meter braided USB cable.
+- 2 meter braided USB cable.
 
 
 # Controller Mapping
@@ -27,7 +27,7 @@ The B button is assigned to both the B and X button.
 # Technical Specifications
 - USB 2.0 HID XBox device.
 
-- Update period: 8 milliseconds.
+- Update period: 3 milliseconds.
 
 - Power draw: 
 	- Min(0.250 W) (No Rumble)
@@ -39,7 +39,7 @@ Task Scheduler - https://github.com/arkhipenko/TaskScheduler
 
 IInputController Device - https://github.com/GitMoDu/IInputController
 
-Nintendo Controler Reader - https://github.com/GitMoDu/NintendoControllerReaderSTM32
+Nintendo Controler Reader - https://github.com/GitMoDu/NintendoControllerReader
 
 USB HID Composite- https://github.com/arpruss/USBComposite_stm32f1
 
