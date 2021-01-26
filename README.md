@@ -8,6 +8,9 @@ N64 to x360 controller conversion using Maple Mini (STM32F1).
 ![](https://raw.githubusercontent.com/GitMoDu/USB-x360-N64Controller/master/media/back.jpg)
 
 
+![](https://raw.githubusercontent.com/GitMoDu/USB-x360-N64Controller/master/media/detail.jpg)
+
+
 # Features
 - Controller presents as an XBox controller through USB.
 
