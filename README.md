@@ -15,6 +15,8 @@ N64 to x360 controller conversion using Maple Mini (STM32F1).
 
 - Calibrated joystick.
 
+- Low latency.
+
 - 2 meter braided USB cable.
 
 
@@ -23,6 +25,8 @@ The mapping used is compatible with RetroArch emulator, so the defaults should w
 
 The B button is assigned to both the B and X button.
 
+The update period is fast (multiple times per frame @ 60 Hz), so emulators should use late polling, for the best possible results.
+
 
 # Technical Specifications
 - USB 2.0 HID XBox device.
@@ -30,8 +34,8 @@ The B button is assigned to both the B and X button.
 - Update period: 3 milliseconds.
 
 - Power draw: 
-	- Min(0.250 W) (No Rumble)
-	- Max(0.600 W) (Rumble full power)
+	- Min(0.300 W) (No Rumble)
+	- Max(0.650 W) (Rumble peak power)
 	
 	
 # Dependencies
